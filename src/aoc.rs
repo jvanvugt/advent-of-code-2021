@@ -50,10 +50,6 @@ impl ops::Mul<i64> for Vec2 {
     }
 }
 
-pub fn vec_in_range(v: Vec2, low_incl: Vec2, high_excl: Vec2) -> bool {
-    low_incl <= v && v < high_excl
-}
-
 impl Vec2 {
     pub fn neighbours(&self) -> Vec<Vec2> {
         vec![
@@ -112,6 +108,21 @@ impl Vec2 {
             },
         ]
     }
+
+    pub fn in_range(&self, low_incl: Vec2, high_excl: Vec2) -> bool {
+        low_incl <= *self && *self < high_excl
+    }
+
+    pub fn clamp(&self, lo: Vec2, hi: Vec2) -> Vec2 {
+        Vec2 {
+            x: clamp(self.x, lo.x, hi.x),
+            y: clamp(self.y, lo.y, hi.y),
+        }
+    }
+}
+
+pub fn clamp(v: i64, lo: i64, hi: i64) -> i64 {
+    std::cmp::max(std::cmp::min(v, hi), lo)
 }
 
 #[cfg(test)]
@@ -137,9 +148,9 @@ mod tests {
     fn test_in_range() {
         let a = Vec2 { x: 1, y: 2 };
         let b = Vec2 { x: 5, y: -1 };
-        assert_eq!(vec_in_range(a, a, b), true);
-        assert_eq!(vec_in_range(a, b, b), false);
-        assert_eq!(vec_in_range(a, a, a), false);
+        assert_eq!(a.in_range(a, b), true);
+        assert_eq!(a.in_range(b, b), false);
+        assert_eq!(a.in_range(a, a), false);
     }
 
     #[test]
@@ -157,5 +168,16 @@ mod tests {
             set.insert(*neigh);
         }
         assert_eq!(set.len(), 8);
+    }
+
+    #[test]
+    fn test_clamp() {
+        assert_eq!(clamp(3, 5, 10), 5);
+        assert_eq!(clamp(12, 5, 10), 10);
+        assert_eq!(clamp(7, 5, 10), 7);
+        let a = Vec2 { x: 1, y: 2 };
+        let b = Vec2 { x: 5, y: -1 };
+        let c = Vec2 { x: -1, y: -1 };
+        assert_eq!(c.clamp(a, b), a);
     }
 }
