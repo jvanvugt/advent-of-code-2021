@@ -1,9 +1,31 @@
+use std::cmp::Ordering;
 use std::ops;
 
-#[derive(Debug, Copy, Clone, PartialEq, PartialOrd, Hash, Eq)]
+#[derive(Debug, Copy, Clone, PartialEq, Hash, Eq)]
 pub struct Vec2 {
     pub x: i64,
     pub y: i64,
+}
+
+impl Ord for Vec2 {
+    fn cmp(&self, other: &Self) -> Ordering {
+        if self.x == other.x && self.y == other.y {
+            return Ordering::Equal;
+        }
+        if self.x < other.x && self.y < other.y {
+            return Ordering::Less;
+        }
+        if self.x > other.y && self.y > other.y {
+            return Ordering::Greater;
+        }
+        return Ordering::Less;
+    }
+}
+
+impl PartialOrd for Vec2 {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
 }
 
 impl ops::Add<Vec2> for Vec2 {
